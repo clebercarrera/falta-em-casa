@@ -19,7 +19,7 @@ Cada conta participa de uma lista familiar. Para compartilhar, cada pessoa cria 
 2. Em **Authentication → Sign-in method**, ative **E-mail/senha**.
 3. Em **Firestore Database**, crie o banco Cloud Firestore.
 4. Em **Configurações do projeto → Seus apps**, registre um app Web e copie a configuração.
-5. Substitua os valores de exemplo em `firebase-config.js` pelos valores do app Web.
+5. O arquivo `firebase-config.js` já está preenchido com os dados do app Web fornecidos; confirme que correspondem ao projeto esperado.
 6. No Firestore, abra **Regras** e publique o conteúdo de `firestore.rules`. Não use regras abertas de teste em produção.
 7. Em **Authentication → Settings → Authorized domains**, adicione o domínio do GitHub Pages (por exemplo, `seu-usuario.github.io`). `localhost` serve para teste local.
 
