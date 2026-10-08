@@ -148,7 +148,7 @@ function renderApp() {
           <form id="add-item-form" class="add-form">
             <label class="visually-hidden" for="item-name">O que está faltando?</label>
             <span class="add-plus" aria-hidden="true">＋</span><input id="item-name" name="name" type="text" maxlength="80" placeholder="O que está faltando em casa?" autocomplete="off" required />
-            <button class="button button-primary add-button" type="submit"><span class="desktop-add-label">Adicionar</span><span class="mobile-add-icon" aria-hidden="true">↵</span></button>
+            <button class="button button-primary add-button" type="submit"><span class="desktop-add-label">Adicionar</span><span class="mobile-add-icon" aria-hidden="true">＋</span></button>
             <div class="add-options"><label><span>Quantidade</span><input name="quantity" maxlength="24" placeholder="Ex.: 2 pacotes" /></label><label><span>Categoria</span><select name="category">${categories.map((category) => `<option value="${category.id}">${category.icon} ${category.name}</option>`).join("")}</select></label></div>
           </form>
         </section>
