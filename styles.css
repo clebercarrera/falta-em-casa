@@ -23,3 +23,55 @@
   .list-toolbar, .search-box, .tabs { min-width: 0; width: 100%; }
   .tab { min-width: 0; flex: 1 1 0; gap: 5px; padding: 0 5px; white-space: nowrap; }
 }
+
+/* Tipografia reforçada e controles confortáveis para leitura e toque em telas móveis. */
+@media (max-width: 700px) {
+  body { font-size: 16px; }
+  .brand-lockup { font-size: 16px; }
+  .eyebrow { font-size: 12px; letter-spacing: 1.1px; }
+  .family-pill-copy strong { font-size: 13px; }
+  .family-pill-copy small { font-size: 11px; }
+  .hero-copy h1 { font-size: 40px; line-height: 1.08; letter-spacing: -1.8px; }
+  .hero-copy p { max-width: 100%; font-size: 15px; line-height: 1.55; }
+  .add-form > input { font-size: 16px; }
+  .add-button { min-height: 44px; font-size: 14px; }
+  .add-plus { width: 30px; height: 30px; font-size: 22px; }
+  .add-options label { font-size: 13px; }
+  .add-options input, .add-options select { min-height: 34px; font-size: 14px; }
+  .list-heading h2 { font-size: 23px; }
+  .count-badge { min-width: 29px; height: 29px; font-size: 14px; }
+  .tab { min-height: 44px; padding: 0 10px; font-size: 13px; }
+  .tab span { min-width: 20px; height: 20px; font-size: 11px; }
+  .search-box { height: 44px; }
+  .search-box input { font-size: 16px; }
+  .category-chip { padding: 10px 13px; font-size: 13px; }
+  .item-row { min-height: 78px; gap: 12px; padding: 12px 13px; }
+  .item-check { width: 32px; height: 32px; }
+  .item-copy strong { font-size: 16px; }
+  .item-copy > span { font-size: 13px; }
+  .added-by { width: 30px; height: 30px; font-size: 12px; }
+  .remove-item { width: 40px; height: 40px; font-size: 25px; }
+  .empty-state h3 { font-size: 19px; }
+  .empty-state p { font-size: 14px; }
+  .mobile-bottom-bar button { min-height: 44px; font-size: 12px; }
+  .mobile-bottom-bar button span { font-size: 23px; }
+  .field-label { font-size: 14px; }
+  .field-label input, .field-label select { min-height: 52px; font-size: 16px; }
+  .form-heading p, .choice-card p, .family-modal > p { font-size: 14px; }
+  .button { min-height: 50px; font-size: 15px; }
+  .form-switch { font-size: 14px; }
+  .privacy-note { font-size: 12px; }
+  .page-footer { font-size: 12px; }
+}
+
+@media (max-width: 360px) {
+  .hero-copy h1 { font-size: 34px; letter-spacing: -1.25px; }
+  .hero-copy p { font-size: 14px; }
+  .family-pill-copy strong { font-size: 12px; }
+  .family-pill-copy small { font-size: 11px; }
+  .add-options label { font-size: 12px; }
+  .add-options input, .add-options select { min-height: 34px; font-size: 13px; }
+  .list-heading h2 { font-size: 20px; }
+  .tab { padding: 0 6px; font-size: 12px; }
+  .category-chip { padding: 9px 11px; font-size: 12px; }
+}
