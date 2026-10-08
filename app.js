@@ -314,13 +314,35 @@ async function joinFamily(form) {
     const codeSnap = await getDoc(doc(db, "inviteCodes", code));
     if (!codeSnap.exists()) throw new Error("Esse convite não foi encontrado. Confira as 8 letras.");
     const familyId = codeSnap.data().familyId;
+    const profileRef = doc(db, "users", user.uid);
+    const profileSnap = await getDoc(profileRef);
+    const currentFamilyId = profileSnap.exists() ? profileSnap.data().familyId : null;
+    if (currentFamilyId === familyId) throw new Error("Esta conta já está nesta lista.");
+
     const memberRef = doc(db, "families", familyId, "members", user.uid);
+    let targetMembershipExists = false;
+    try {
+      const targetMembership = await getDoc(memberRef);
+      targetMembershipExists = targetMembership.exists();
+    } catch (error) {
+      if (error.code !== "permission-denied") throw error;
+    }
+
     const batch = writeBatch(db);
-    batch.set(memberRef, { uid: user.uid, displayName: userName(), role: "member", joinedAt: serverTimestamp(), joinCode: code });
-    batch.set(doc(db, "users", user.uid), { familyId, inviteCode: code, displayName: userName(), updatedAt: serverTimestamp() });
+    if (currentFamilyId) {
+      const oldMemberRef = doc(db, "families", currentFamilyId, "members", user.uid);
+      const oldMembership = await getDoc(oldMemberRef);
+      if (oldMembership.exists()) batch.delete(oldMemberRef);
+    }
+    if (!targetMembershipExists) {
+      batch.set(memberRef, { uid: user.uid, displayName: userName(), role: "member", joinedAt: serverTimestamp(), joinCode: code });
+    }
+    batch.set(profileRef, { familyId, inviteCode: code, displayName: userName(), updatedAt: serverTimestamp() });
     await batch.commit();
-    try { await updateDoc(memberRef, { joinCode: deleteField() }); } catch { /* O convite já foi validado pelas regras; a limpeza é uma melhoria de privacidade. */ }
-    showToast("Você entrou na lista da família!");
+    if (!targetMembershipExists) {
+      try { await updateDoc(memberRef, { joinCode: deleteField() }); } catch { /* A validação do convite já foi concluída; a limpeza é uma melhoria de privacidade. */ }
+    }
+    showToast(currentFamilyId ? "Você trocou para a nova lista." : "Você entrou na lista da família!");
     await loadUserHome();
   } catch (error) {
     showToast(friendlyError(error), "error");
@@ -379,7 +401,22 @@ async function removeItem(itemId) {
 
 function openFamilyModal() {
   const modal = document.querySelector("#family-modal");
-  if (modal) modal.hidden = false;
+  if (modal) {
+    const membersPanel = modal.querySelector(".member-list");
+    if (membersPanel && !modal.querySelector(".alternate-family-access")) {
+      membersPanel.insertAdjacentHTML("afterend", `
+        <div class="alternate-family-access">
+          <button class="button button-secondary button-wide" type="button" data-action="show-alternate-join">Tenho um código de outra família</button>
+          <form id="alternate-join-family-form" class="alternate-join-form" hidden>
+            <p class="switch-family-notice">Ao continuar, esta conta sairá da lista atual e entrará na nova. Os itens anteriores não serão apagados.</p>
+            <label class="field-label">Código de compartilhamento<input name="inviteCode" type="text" minlength="8" maxlength="8" placeholder="Ex.: ABCD1234" autocomplete="off" autocapitalize="characters" required /></label>
+            <button class="button button-primary button-wide" type="submit">Entrar na outra lista</button>
+            <button class="text-button alternate-join-cancel" type="button" data-action="cancel-alternate-join">Cancelar</button>
+          </form>
+        </div>`);
+    }
+    modal.hidden = false;
+  }
 }
 
 async function copyInviteCode() {
@@ -402,6 +439,7 @@ appRoot.addEventListener("submit", async (event) => {
   if (form.id === "auth-form") await handleAuthSubmit(form);
   if (form.id === "create-family-form") await createFamily(form);
   if (form.id === "join-family-form") await joinFamily(form);
+  if (form.id === "alternate-join-family-form") await joinFamily(form);
   if (form.id === "add-item-form") await addItem(form);
 });
 
@@ -426,6 +464,16 @@ appRoot.addEventListener("click", async (event) => {
   if (action === "open-family") openFamilyModal();
   if (action === "close-family") { const modal = document.querySelector("#family-modal"); if (modal) modal.hidden = true; }
   if (action === "copy-code") await copyInviteCode();
+  if (action === "show-alternate-join") {
+    const form = document.querySelector("#alternate-join-family-form");
+    if (form) { form.hidden = false; button.hidden = true; form.querySelector("input[name=inviteCode]")?.focus(); }
+  }
+  if (action === "cancel-alternate-join") {
+    const form = document.querySelector("#alternate-join-family-form");
+    const trigger = document.querySelector('[data-action="show-alternate-join"]');
+    if (form) form.hidden = true;
+    if (trigger) trigger.hidden = false;
+  }
 });
 
 document.addEventListener("keydown", (event) => {

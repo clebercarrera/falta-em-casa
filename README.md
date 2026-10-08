@@ -11,7 +11,7 @@ Aplicação web mobile-first para a família anotar o que está faltando em casa
 - Interface responsiva e instalável como PWA em navegadores compatíveis.
 - Regras do Cloud Firestore em `firestore.rules` e workflow de publicação no GitHub Pages.
 
-Cada conta participa de uma lista familiar. Para compartilhar, cada pessoa cria uma conta e usa o mesmo código enviado pela família.
+Cada conta tem uma lista familiar ativa por vez. Para compartilhar, cada pessoa cria uma conta e usa o código enviado pela família. Se a conta já estiver em outra lista, abra **Família** e escolha **Tenho um código de outra família**. A conta sai da lista anterior, mas os itens permanecem para as outras pessoas.
 
 ## 1. Preparar o Firebase
 

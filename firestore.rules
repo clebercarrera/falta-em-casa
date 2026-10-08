@@ -62,7 +62,10 @@ service cloud.firestore {
           && resource.data.keys().hasAny(['joinCode'])
           && !request.resource.data.keys().hasAny(['joinCode'])
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joinCode']);
-        allow delete: if false;
+        // A pessoa só pode sair da própria lista ao trocar o perfil para outra família no mesmo batch.
+        allow delete: if signedIn()
+          && uid == request.auth.uid
+          && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.familyId != familyId;
       }
 
       match /items/{itemId} {
