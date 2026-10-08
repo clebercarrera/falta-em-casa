@@ -1,0 +1,15 @@
+{
+  "name": "Falta em Casa — lista da família",
+  "short_name": "Falta em Casa",
+  "description": "Lista de compras compartilhada para cuidar da casa em família.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8f3",
+  "theme_color": "#f7f8f3",
+  "icons": [
+    { "src": "./icons/app-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

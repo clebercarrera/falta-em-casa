@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isFamilyMember(familyId) {
+      return signedIn() && exists(
+        /databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid)
+      );
+    }
+
+    function inviteBelongsToFamily(familyId, code) {
+      return code is string
+        && exists(/databases/$(database)/documents/inviteCodes/$(code))
+        && get(/databases/$(database)/documents/inviteCodes/$(code)).data.familyId == familyId;
+    }
+
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // O convidado pode consultar somente o código exato informado; listagem é bloqueada.
+    match /inviteCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['familyId', 'createdBy', 'createdAt'])
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.familyId is string
+        && existsAfter(/databases/$(database)/documents/families/$(request.resource.data.familyId)/members/$(request.auth.uid));
+      allow update, delete: if false;
+    }
+
+    match /families/{familyId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['familyName', 'ownerUid', 'createdAt'])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.familyName is string;
+      allow get: if isFamilyMember(familyId);
+      allow list, update, delete: if false;
+
+      match /members/{uid} {
+        allow read: if isFamilyMember(familyId);
+        allow create: if signedIn()
+          && uid == request.auth.uid
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.keys().hasOnly(['uid', 'displayName', 'role', 'joinedAt', 'joinCode'])
+          && request.resource.data.displayName is string
+          && (
+            (request.resource.data.role == 'owner'
+              && !request.resource.data.keys().hasAny(['joinCode'])
+              && getAfter(/databases/$(database)/documents/families/$(familyId)).data.ownerUid == request.auth.uid)
+            ||
+            (request.resource.data.role == 'member'
+              && inviteBelongsToFamily(familyId, request.resource.data.joinCode))
+          );
+        // Depois da validação, o cliente remove o código usado do perfil do membro.
+        allow update: if signedIn()
+          && uid == request.auth.uid
+          && resource.data.keys().hasAny(['joinCode'])
+          && !request.resource.data.keys().hasAny(['joinCode'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joinCode']);
+        allow delete: if false;
+      }
+
+      match /items/{itemId} {
+        allow read, create, update, delete: if isFamilyMember(familyId);
+      }
+    }
+  }
+}
